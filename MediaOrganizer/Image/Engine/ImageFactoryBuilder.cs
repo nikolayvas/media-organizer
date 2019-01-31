@@ -4,26 +4,27 @@ using System.IO;
 
 namespace Image.Engine
 {
-    public sealed class Builder
+    public sealed class ImageFactoryBuilder
     {
         private Dictionary<string, Type> _registeredFileProcessors = new Dictionary<string, Type>();
 
-        private static Builder instance = null;
+        private static ImageFactoryBuilder instance = null;
 
-        private Builder()
+        private ImageFactoryBuilder()
         {
             _registeredFileProcessors.Add(".jpg", typeof(JPGFileProcessor));
-            _registeredFileProcessors.Add(".mov", typeof(JVCMovieFileProcessor));
+            _registeredFileProcessors.Add(".mod", typeof(JVCMovieFileProcessor));
+            _registeredFileProcessors.Add(".mov", typeof(MP4FileProcessor));
             _registeredFileProcessors.Add(".mp4", typeof(MP4FileProcessor));
         }
 
-        public static Builder Instance
+        public static ImageFactoryBuilder Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new Builder();
+                    instance = new ImageFactoryBuilder();
                 }
                 return instance;
             }

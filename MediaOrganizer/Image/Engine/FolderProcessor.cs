@@ -26,7 +26,7 @@ namespace Image.Engine
 
                     processMonitorAction($"Copying: {file.FullName}", percentComplete);
 
-                    IFileProcessor processor = Builder.Instance.GetFileProcessor(file.FullName);
+                    IFileProcessor processor = ImageFactoryBuilder.Instance.GetFileProcessor(file.FullName);
 
                     if(processor != null)
                     {

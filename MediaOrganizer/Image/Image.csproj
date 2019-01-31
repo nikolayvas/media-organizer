@@ -60,12 +60,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Engine\BaseFileProcessor.cs" />
-    <Compile Include="Engine\Builder.cs" />
+    <Compile Include="Engine\FileProcessor.cs" />
+    <Compile Include="Engine\ImageFactoryBuilder.cs" />
+    <Compile Include="Engine\FolderDetail.cs" />
     <Compile Include="Engine\FolderProcessor.cs" />
-    <Compile Include="Engine\JPGFileProcessor.cs" />
-    <Compile Include="Engine\JVCMovieFileProcessor.cs" />
-    <Compile Include="Engine\MP4FileProcessor.cs" />
+    <Compile Include="Engine\FileFormats\JPGFileProcessor.cs" />
+    <Compile Include="Engine\FileFormats\JVCMovieFileProcessor.cs" />
+    <Compile Include="Engine\IFileProcessor.cs" />
+    <Compile Include="Engine\MetadataExtractor.cs" />
+    <Compile Include="Engine\FileFormats\MP4FileProcessor.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="TreeNode.cs" />
     <Page Include="MainWindow.xaml">
@@ -126,6 +129,17 @@
     <PackageReference Include="WpfAnimatedGif">
       <Version>1.4.17</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Shell32">
+      <Guid>{50A7E9B0-70EF-11D1-B75A-00A0C90564FE}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
