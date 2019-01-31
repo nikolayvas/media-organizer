@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:Image"
         mc:Ignorable="d"
-        Title="Media Organizer" Height="450" Width="800" Loaded="Window_Loaded">
+        Title="Media Organizer" Height="450" Width="800" Closing="Window_Closing">
 
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Close" Executed="CloseCommand_Executed" CanExecute="CloseCommand_CanExecute" />
@@ -13,14 +14,43 @@
     <Grid>
         <DockPanel>
             <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File">
+                <MenuItem Header="_File" SubmenuOpened="MenuItem_SubmenuOpened">
                     <MenuItem Header="Open _Source Drive" Name="sourceDriveItem"/>
                     <MenuItem Header="Open _Destination Drive" Name="destinationDriveItem"/>
                     <Separator/>
                     <MenuItem Header="_Close" Command="ApplicationCommands.Close" />
                 </MenuItem>
             </Menu>
-            <Grid>
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem>
+                    <TextBlock Name="inProgress">Ready</TextBlock>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="1">
+                    <ProgressBar Name="progressBar" Width="200" Height="24"/>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="2">
+                    <Button Name="cancelCopy" Click="Cancel_Click" Visibility="Hidden" Height="24">
+                        <TextBlock>
+                            <Image Name="activityGif" gif:ImageBehavior.AnimatedSource="Images/Gear-1s-24px.gif"/><Bold>Cancel</Bold>
+                        </TextBlock>
+                    </Button>
+                </StatusBarItem>
+            </StatusBar>
+            <Grid DockPanel.Dock="Left">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -46,19 +76,9 @@
                                 </Setter.Value>
                             </Setter>
                         </Style>
-                        <ContextMenu x:Key ="SolutionContext"  StaysOpen="true">
-                            <MenuItem Header="Add..." Click="AddFilesToFolder_Click"/>
-                            <MenuItem Header="Rename"/>
-                        </ContextMenu>
-                        <ContextMenu x:Key="FolderContext"  StaysOpen="true">
-                            <MenuItem Header="Add..." Click="AddFilesToFolder_Click"/>
-                            <MenuItem Header="Rename"/>
-                            <MenuItem Header="Remove"/>
-                            <Separator/>
-                            <MenuItem Header="Copy"/>
-                            <MenuItem Header="Cut"/>
-                            <MenuItem Header="Paste"/>
-                            <MenuItem Header="Move"/>
+                        <ContextMenu x:Key="FolderContext" StaysOpen="true">
+                            <MenuItem Header="Copy files to destination drive..." Click="Copy_Click"
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
                         </ContextMenu>
                     </TreeView.Resources>
                 </TreeView>
@@ -87,8 +107,6 @@
                     </TreeView.Resources>
                 </TreeView>
             </Grid>
-                        
         </DockPanel>
-
     </Grid>
 </Window>
