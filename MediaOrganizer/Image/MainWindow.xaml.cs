@@ -15,13 +15,12 @@ namespace Image
     /// </summary>
     public partial class MainWindow : Window
     {
-        private CancellationTokenSource _CancelSource;
-        private string _DestinationDrive;
+        private CancellationTokenSource _cancelSource;
+        private string _destinationDrive;
 
         public MainWindow()
         {
             InitializeComponent();
-            Log.Instance.Info("App started!");
         }
 
         private void DriveS_Click(object sender, RoutedEventArgs e)
@@ -39,7 +38,7 @@ namespace Image
 
             string drive = (string)menuItem.Header;
 
-            _DestinationDrive = drive;
+            _destinationDrive = drive;
             FillTree(rightTree, drive, false);
         }
 
@@ -200,9 +199,9 @@ namespace Image
                     try
                     {
                         BlockUI(true);
-                        var taskRes = FolderProcessor.ProcessFolder(tag.Path, _DestinationDrive, SetProgress, _CancelSource.Token);
+                        var taskRes = FolderProcessor.ProcessFolder(tag.Path, _destinationDrive, SetProgress, _cancelSource.Token);
 
-                        await taskRes.ContinueWith(_ => _CancelSource.Dispose());
+                        await taskRes.ContinueWith(_ => _cancelSource.Dispose());
                         if (taskRes.Result.Errors > 0)
                         {
                             MessageBox.Show($"Operation completed with {taskRes.Result} errors! For details check the log file!",
@@ -278,20 +277,20 @@ namespace Image
                 progressBar.Value = 0;
                 activityGif.Visibility = Visibility.Visible;
                 cancelCopy.Visibility = Visibility.Visible;
-                _CancelSource = new CancellationTokenSource();
+                _cancelSource = new CancellationTokenSource();
             }
             else
             {
                 cancelCopy.Visibility = Visibility.Hidden;
                 activityGif.Visibility = Visibility.Hidden;
-                _CancelSource = null;
+                _cancelSource = null;
             }
         }
 
         private void SetProgress(string inPorgressFile, int progress)
         {
-            this.progressBar.Value = progress;
-            this.inProgress.Text = inPorgressFile;
+            progressBar.Value = progress;
+            inProgress.Text = inPorgressFile;
         }
 
         private void MenuItem_SubmenuOpened(object sender, RoutedEventArgs e)
@@ -322,8 +321,10 @@ namespace Image
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            //TODO may be to popup confirmation message
-            _CancelSource.Cancel();
+            if (CloseConfirm())
+            {
+                _cancelSource.Cancel();
+            }
         }
 
         private void CloseCommand_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -337,12 +338,14 @@ namespace Image
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (!CloseConfirm())
+            {
                 e.Cancel = true;
+            }
         }
 
         private bool CloseConfirm()
         {
-            if (_CancelSource != null && !_CancelSource.IsCancellationRequested)
+            if (_cancelSource != null && !_cancelSource.IsCancellationRequested)
             {
                 var res = MessageBox.Show("Do you really want to cancel running process?",
                                 "Warning",

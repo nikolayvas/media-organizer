@@ -10,6 +10,7 @@
     public class TreeNode
     {
         public NodeDataType Type { get; set; }
+
         public string Path { get; set; }
     }
 }

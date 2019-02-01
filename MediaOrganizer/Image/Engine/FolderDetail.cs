@@ -1,6 +1,7 @@
 ﻿using Shell32;
 using System.Collections.Generic;
 using System.IO;
+
 namespace Image.Engine
 {
     public class FolderDetail

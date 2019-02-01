@@ -6,7 +6,7 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:Image"
         mc:Ignorable="d"
-        Title="Media Organizer" Height="450" Width="800" Closing="Window_Closing">
+        Title="Galery Organizer" Height="450" Width="800" Closing="Window_Closing">
 
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Close" Executed="CloseCommand_Executed" CanExecute="CloseCommand_CanExecute" />
@@ -14,7 +14,7 @@
     <Grid>
         <DockPanel>
             <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File" SubmenuOpened="MenuItem_SubmenuOpened">
+                <MenuItem Header="_File" SubmenuOpened="MenuItem_SubmenuOpened" Height="24">
                     <MenuItem Header="Open _Source Drive" Name="sourceDriveItem"/>
                     <MenuItem Header="Open _Destination Drive" Name="destinationDriveItem"/>
                     <Separator/>
@@ -36,7 +36,7 @@
                         </Grid>
                     </ItemsPanelTemplate>
                 </StatusBar.ItemsPanel>
-                <StatusBarItem>
+                <StatusBarItem Grid.Column="0">
                     <TextBlock Name="inProgress">Ready</TextBlock>
                 </StatusBarItem>
                 <StatusBarItem Grid.Column="1">

@@ -7,5 +7,9 @@ namespace Image
     /// </summary>
     public partial class App : Application
     {
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            Log.Instance.Info("App started!");
+        }
     }
 }
