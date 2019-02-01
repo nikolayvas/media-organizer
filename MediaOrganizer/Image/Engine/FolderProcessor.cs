@@ -8,8 +8,9 @@ namespace Image.Engine
 {
     public class FolderProcessor
     {
-        public static async Task ProcessFolder(string sourceFolder, string destinationDrive, Action<string, int> processMonitorAction, CancellationToken cancelToken)
+        public static async Task<CopyResult> ProcessFolder(string sourceFolder, string destinationDrive, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
+            var res = new CopyResult();
             try
             {
                 long progress = 0;
@@ -20,7 +21,7 @@ namespace Image.Engine
                 {
                     if (cancelToken.IsCancellationRequested)
                     {
-                        return;
+                        return res;
                     }
                     int percentComplete = (int)Math.Round((double)(100 * progress) / length);
 
@@ -30,7 +31,20 @@ namespace Image.Engine
 
                     if(processor != null)
                     {
-                        await processor.CopyFileToDetinationDriveAsync(file.FullName, destinationDrive, cancelToken);
+                        try
+                        {
+                            await processor.CopyFileToDetinationDriveAsync(file.FullName, destinationDrive, cancelToken);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex)
+                        {
+                            //TODO handle no permissions exception
+                            Log.Instance.Error(ex, $"Failed to process '{file.FullName}'");
+                            res.Errors++;
+                        }
                     }
 
                     progress += file.Length;
@@ -49,6 +63,8 @@ namespace Image.Engine
                 //TODO handle no permissions exception
                 Log.Instance.Error(ex);
             }
+
+            return res;
         }
     }
 }

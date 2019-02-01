@@ -79,6 +79,11 @@
                         <ContextMenu x:Key="FolderContext" StaysOpen="true">
                             <MenuItem Header="Copy files to destination drive..." Click="Copy_Click"
                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                            <Separator />
+                            <MenuItem Header="Mark" Click="Mark_Click"
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                            <MenuItem Header="Unmark" Click="UnMark_Click"
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
                         </ContextMenu>
                     </TreeView.Resources>
                 </TreeView>

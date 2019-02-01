@@ -1,12 +1,12 @@
-﻿using Image.Engine;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using Image.Engine;
 
 namespace Image
 {
@@ -66,46 +66,55 @@ namespace Image
         {
             e.Handled = true;
             TreeViewItem item = (TreeViewItem)sender;
-            //if (item.Items.Count == 1 && item.Items[0] == null)
-            {
-                item.Items.Clear();
-                try
-                {
-                    foreach (string s in Directory.GetDirectories(((TreeNode)item.Tag).Path))
-                    {
-                        TreeViewItem subitem = new TreeViewItem
-                        {
-                            Header = s.Substring(s.LastIndexOf("\\") + 1),
-                            Tag = new TreeNode()
-                            {
-                                Type = NodeDataType.Folder,
-                                Path = s
-                            },
-                            FontWeight = FontWeights.Normal,
-                            //Foreground = new SolidColorBrush(Colors.Orange)
-                        };
+            ExpandFolder(item);
+        }
 
-                        subitem.Items.Add(null);
-                        subitem.Expanded += new RoutedEventHandler(Folder_Expanded);
-                        item.Items.Add(subitem);
-                    }
-                    foreach (string f in Directory.GetFiles(((TreeNode)item.Tag).Path))
+        private void ExpandFolder(TreeViewItem item)
+        {
+            item.Items.Clear();
+            try
+            {
+                foreach (string s in Directory.GetDirectories(((TreeNode)item.Tag).Path))
+                {
+                    TreeViewItem subitem = new TreeViewItem
                     {
-                        TreeViewItem subitem = new TreeViewItem
+                        Header = s.Substring(s.LastIndexOf("\\") + 1),
+                        Tag = new TreeNode()
                         {
-                            Header = Path.GetFileName(f),
-                            Tag = new TreeNode()
-                            {
-                                Type = NodeDataType.File,
-                                Path = f
-                            },
-                            FontWeight = FontWeights.Normal,
-                            //Foreground = new SolidColorBrush(Colors.Orange)
-                        };
-                        item.Items.Add(subitem);
+                            Type = NodeDataType.Folder,
+                            Path = s
+                        },
+                        FontWeight = FontWeights.Normal,
+                    };
+
+                    if (ThumbMarker.HasThumpMarker(s))
+                    {
+                        subitem.Foreground = new SolidColorBrush(Colors.Orange);
                     }
+
+                    subitem.Items.Add(null);
+                    subitem.Expanded += new RoutedEventHandler(Folder_Expanded);
+                    item.Items.Add(subitem);
                 }
-                catch (Exception) { }
+                foreach (string f in Directory.GetFiles(((TreeNode)item.Tag).Path))
+                {
+                    TreeViewItem subitem = new TreeViewItem
+                    {
+                        Header = Path.GetFileName(f),
+                        Tag = new TreeNode()
+                        {
+                            Type = NodeDataType.File,
+                            Path = f
+                        },
+                        FontWeight = FontWeights.Normal,
+                    };
+
+                    item.Items.Add(subitem);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Error(ex);
             }
         }
 
@@ -125,7 +134,21 @@ namespace Image
                         switch (tag.Type)
                         {
                             case NodeDataType.Folder:
-                                leftTree.ContextMenu = leftTree.Resources["FolderContext"] as ContextMenu;
+                                var contextMenu = leftTree.Resources["FolderContext"] as ContextMenu;
+
+                                if(ThumbMarker.HasThumpMarker(tag.Path))
+                                {
+                                    (contextMenu.Items[2] as MenuItem).Visibility = Visibility.Collapsed;
+                                    (contextMenu.Items[3] as MenuItem).Visibility = Visibility.Visible;
+                                }
+                                else
+                                {
+                                    (contextMenu.Items[2] as MenuItem).Visibility = Visibility.Visible;
+                                    (contextMenu.Items[3] as MenuItem).Visibility = Visibility.Collapsed;
+                                }
+
+                                leftTree.ContextMenu = contextMenu;
+
                                 break;
                             default:
                                 leftTree.ContextMenu = null;
@@ -165,7 +188,68 @@ namespace Image
                 return;
             }
 
-            if (sender is MenuItem mi)
+            var item = GetSelectedTreeViewItem(sender);
+            if (item != null)
+            {
+                if (item.Tag is TreeNode tag)
+                {
+                    Log.Instance.Info($"Folder, {tag.Path} was clicked!");
+
+                    try
+                    {
+                        BlockUI(true);
+                        var taskRes = FolderProcessor.ProcessFolder(tag.Path, _DestinationDrive, SetProgress, _CancelSource.Token);
+
+                        await taskRes.ContinueWith(_ => _CancelSource.Dispose());
+                        if (taskRes.Result.Errors > 0)
+                        {
+                            MessageBox.Show($"Operation completed with {taskRes.Result} errors! For details check the log file!",
+                                            "Warning",
+                                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                        else
+                        {
+                            ThumbMarker.PutThumbMarker(tag.Path, true);
+                            ExpandFolder(item.Parent as TreeViewItem);
+                        }
+                    }
+                    finally
+                    {
+                        BlockUI(false);
+                    }
+                }
+            }
+        }
+
+        private void Mark_Click(object sender, RoutedEventArgs e)
+        {
+            var item = GetSelectedTreeViewItem(sender);
+            if (item != null)
+            {
+                if (item.Tag is TreeNode tag)
+                {
+                    ThumbMarker.PutThumbMarker(tag.Path, true);
+                    ExpandFolder(item.Parent as TreeViewItem);
+                }
+            }
+        }
+
+        private void UnMark_Click(object sender, RoutedEventArgs e)
+        {
+            var item = GetSelectedTreeViewItem(sender);
+            if (item != null)
+            {
+                if (item.Tag is TreeNode tag)
+                {
+                    ThumbMarker.DelThumbMarker(tag.Path, true);
+                    ExpandFolder(item.Parent as TreeViewItem);
+                }
+            }
+        }
+
+        private TreeViewItem GetSelectedTreeViewItem(object sender)
+        {
+            if(sender is MenuItem mi)
             {
                 if (mi.CommandParameter is ContextMenu cm)
                 {
@@ -173,24 +257,12 @@ namespace Image
 
                     if (tv.SelectedItem is TreeViewItem item)
                     {
-                        if (item.Tag is TreeNode tag)
-                        {
-                            Log.Instance.Info($"Folder, {tag.Path} was clicked!");
-
-                            try
-                            {
-                                BlockUI(true);
-                                await FolderProcessor.ProcessFolder(tag.Path, _DestinationDrive, SetProgress, _CancelSource.Token)
-                                    .ContinueWith(_=> _CancelSource.Dispose());
-                            }
-                            finally
-                            {
-                                BlockUI(false);
-                            }
-                        }
+                        return item;
                     }
                 }
             }
+
+            return null;
         }
 
         private void BlockUI(bool yes)

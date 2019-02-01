@@ -60,6 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Engine\CopyResult.cs" />
     <Compile Include="Engine\FileProcessor.cs" />
     <Compile Include="Engine\ImageFactoryBuilder.cs" />
     <Compile Include="Engine\FolderDetail.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Engine\IFileProcessor.cs" />
     <Compile Include="Engine\MetadataExtractor.cs" />
     <Compile Include="Engine\FileFormats\MP4FileProcessor.cs" />
+    <Compile Include="Engine\ThumbMarker.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="TreeNode.cs" />
     <Page Include="MainWindow.xaml">

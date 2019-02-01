@@ -7,6 +7,9 @@ namespace Image.Engine
 {
     public class JVCMovieFileProcessor : FileProcessor
     {
+        private const string MOD_EXT = ".mod";
+        private const string MOI_EXT = ".moi";
+
         protected override DateTime GetOriginDateCreation(string filePath)
         {
             try
@@ -76,25 +79,30 @@ namespace Image.Engine
 
         public override async Task CopyFileToDetinationDriveAsync(string modFilePath, string destinationDrive, CancellationToken cancelToken)
         {
-            var moiFilePath = string.Concat(Path.GetDirectoryName(modFilePath), Path.GetFileNameWithoutExtension(modFilePath) + ".moi");
+            var moiFilePath = string.Concat(Path.GetDirectoryName(modFilePath), Path.GetFileNameWithoutExtension(modFilePath) + MOI_EXT);
             FileInfo moiFile = new FileInfo(moiFilePath);
 
+            DateTime dateTaken;
             if(!moiFile.Exists)
             {
-                Log.Instance.Warn($"Mov file without Moi: {modFilePath}");
+                Log.Instance.Warn($"MOD file without MOI: {modFilePath}");
+                dateTaken = DateTime.Now;
             }
             else
             {
-                var dateTaken = GetOriginDateCreation(moiFile.FullName);
-                var destinationFolderPath = GetDestinationFolderPath(modFilePath, destinationDrive, dateTaken);
+                dateTaken = GetOriginDateCreation(moiFile.FullName);
+            }
 
-                var destMovFilePath = GetDestinationFilePath(modFilePath, destinationFolderPath, dateTaken);
+            var destinationFolderPath = GetDestinationFolderPath(modFilePath, destinationDrive, dateTaken);
+            var destModFilePath = GetDestinationFilePath(modFilePath, destinationFolderPath, dateTaken);
 
-                if (destMovFilePath != null)
+            if (destModFilePath != null)
+            {
+                await CopyFileAsync(modFilePath, destModFilePath, cancelToken);
+
+                if (moiFile.Exists)
                 {
-                    var destMoiFilePath = destMovFilePath.Replace(".mov", ".moi");
-
-                    await CopyFileAsync(modFilePath, destMovFilePath, cancelToken);
+                    var destMoiFilePath = destModFilePath.Replace(MOD_EXT, MOI_EXT);
                     await CopyFileAsync(moiFilePath, destMoiFilePath, cancelToken);
                 }
             }

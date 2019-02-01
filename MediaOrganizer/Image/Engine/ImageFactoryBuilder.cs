@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 
@@ -7,6 +8,7 @@ namespace Image.Engine
     public sealed class ImageFactoryBuilder
     {
         private Dictionary<string, Type> _registeredFileProcessors = new Dictionary<string, Type>();
+        private ConcurrentDictionary<string, IFileProcessor> _fileProcessors = new ConcurrentDictionary<string, IFileProcessor>();
 
         private static ImageFactoryBuilder instance = null;
 
@@ -32,23 +34,18 @@ namespace Image.Engine
 
         public IFileProcessor GetFileProcessor(string sourceFilePath)
         {
-            try
-            {
-                var ext = Path.GetExtension(sourceFilePath).ToLower();
-
-                if(_registeredFileProcessors.TryGetValue(ext, out Type processorType))
+            var ext = Path.GetExtension(sourceFilePath).ToLower();
+            return _fileProcessors.GetOrAdd(ext, x => 
                 {
-                    IFileProcessor instance = (IFileProcessor)Activator.CreateInstance(processorType);
-                    return instance;
-                }
-            }
-            catch(Exception ex)
-            {
-                Log.Instance.Error(ex);
-            }
+                    if (_registeredFileProcessors.TryGetValue(ext, out Type processorType))
+                    {
+                        IFileProcessor instance = (IFileProcessor)Activator.CreateInstance(processorType);
+                        return instance;
+                    }
 
-            Log.Instance.Info($"Unsupported file format: {sourceFilePath}");
-            return null;
+                    Log.Instance.Info($"Unsupported file format: {sourceFilePath}");
+                    return null;
+                });
         }
     }
 }

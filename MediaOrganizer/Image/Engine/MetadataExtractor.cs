@@ -26,15 +26,7 @@ namespace Image.Engine
 
         public FolderDetail GetFolderDetails(string folderPath)
         {
-            if(_folderDetails.TryGetValue(folderPath, out var folderDetail))
-            {
-                return folderDetail;
-            }
-            else
-            {
-                _folderDetails.TryAdd(folderPath, new FolderDetail(folderPath));
-                return GetFolderDetails(folderPath);
-            }
+            return _folderDetails.GetOrAdd(folderPath, new FolderDetail(folderPath));
         }
     }
 }
