@@ -30,7 +30,7 @@ namespace Image
 
             string drive = (string)menuItem.Header;
 
-            FillTree(leftTree, drive);
+            FillTree(leftTree, drive, true);
         }
 
         private void DriveD_Click(object sender, RoutedEventArgs e)
@@ -40,10 +40,10 @@ namespace Image
             string drive = (string)menuItem.Header;
 
             _DestinationDrive = drive;
-            FillTree(rightTree, drive);
+            FillTree(rightTree, drive, false);
         }
 
-        private void FillTree(TreeView root, string drive)
+        private void FillTree(TreeView root, string drive, bool expandRoot)
         {
             root.Items.Clear();
             TreeViewItem item = new TreeViewItem
@@ -60,6 +60,8 @@ namespace Image
             item.Items.Add(null);
             item.Expanded += new RoutedEventHandler(Folder_Expanded);
             root.Items.Add(item);
+
+            item.IsExpanded = expandRoot;
         }
 
         void Folder_Expanded(object sender, RoutedEventArgs e)

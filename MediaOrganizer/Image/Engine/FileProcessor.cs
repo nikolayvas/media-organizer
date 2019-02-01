@@ -42,23 +42,24 @@ namespace Image.Engine
 
         protected string GetDestinationFilePath(string filePath, string destFolder, DateTime dateTaken)
         {
-            var isSpecific = filePath.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
+            var isMarked = filePath.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
 
             string originFileName = Path.GetFileName(filePath);
-            string newFileName = dateTaken.ToString(_dateFormat);
+            string dateCreated = dateTaken.ToString(_dateFormat);
+            string newFileName;
 
-            if (!originFileName.StartsWith(newFileName))
+            if (!originFileName.StartsWith(dateCreated))
             {
-                newFileName = string.Concat(newFileName, "_", originFileName);
+                newFileName = $"{dateCreated}_{originFileName}";
             }
             else
             {
                 newFileName = originFileName;
             }
 
-            if (isSpecific.Length > 1)
+            if (isMarked.Length > 1)
             {
-                newFileName = isSpecific[1] + "_" + newFileName;
+                newFileName = $"{isMarked[1]}_{newFileName}";
             }
 
             var destFileName = Path.Combine(destFolder, newFileName);
@@ -88,10 +89,10 @@ namespace Image.Engine
             string name = Path.GetFileNameWithoutExtension(destFile.FullName);
             string ext = destFile.Extension;
 
-            string suffix = "_";
+            var index = 1;
             while (true)
             {
-                var newFileName = Path.Combine(folder, name + suffix + ext);
+                var newFileName = Path.Combine(folder, $"{name}_{index}{ext}");
                 var file = new FileInfo(newFileName);
 
                 if (!file.Exists)
@@ -99,7 +100,7 @@ namespace Image.Engine
                     return newFileName;
                 }
 
-                suffix += "_";
+                index++;
             }
         }
     }

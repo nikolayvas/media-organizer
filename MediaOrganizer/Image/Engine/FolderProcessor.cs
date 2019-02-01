@@ -10,7 +10,7 @@ namespace Image.Engine
     {
         public static async Task<CopyResult> ProcessFolder(string sourceFolder, string destinationDrive, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
-            var res = new CopyResult();
+            var result = new CopyResult();
             try
             {
                 long progress = 0;
@@ -21,7 +21,7 @@ namespace Image.Engine
                 {
                     if (cancelToken.IsCancellationRequested)
                     {
-                        return res;
+                        return result;
                     }
                     int percentComplete = (int)Math.Round((double)(100 * progress) / length);
 
@@ -43,7 +43,7 @@ namespace Image.Engine
                         {
                             //TODO handle no permissions exception
                             Log.Instance.Error(ex, $"Failed to process '{file.FullName}'");
-                            res.Errors++;
+                            result.Errors++;
                         }
                     }
 
@@ -64,7 +64,7 @@ namespace Image.Engine
                 Log.Instance.Error(ex);
             }
 
-            return res;
+            return result;
         }
     }
 }
