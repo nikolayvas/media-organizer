@@ -15,14 +15,14 @@ namespace Image.Engine
 
                 if (!DateTime.TryParse(dateString, out var dateValue))
                 {
-                    Log.Instance.Warn($"No Media created date detected for: {filePath}");
+                    Log.Instance.Warn($"No 'Media created' date detected for: {filePath}");
                 }
 
                 return dateValue;
             }
             catch (Exception ex)
             {
-                Log.Instance.Error(ex, $"Failed to detect Media created date for: {filePath}.");
+                Log.Instance.Error(ex, $"Failed to detect 'Media created' date for: {filePath}.");
                 return new DateTime();
             }
         }

@@ -72,7 +72,7 @@ namespace Image.Engine
             }
             catch(Exception ex)
             {
-                Log.Instance.Error(ex, $"Failed to detect Media created date for: {filePath}.");
+                Log.Instance.Error(ex, $"Failed to detect 'Media created' date for: {filePath}.");
                 return new DateTime();
             }
         }
