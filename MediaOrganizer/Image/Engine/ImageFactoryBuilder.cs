@@ -18,6 +18,7 @@ namespace Image.Engine
             _registeredFileProcessors.Add(".mod", typeof(JVCMovieFileProcessor));
             _registeredFileProcessors.Add(".mov", typeof(MP4FileProcessor));
             _registeredFileProcessors.Add(".mp4", typeof(MP4FileProcessor));
+            _registeredFileProcessors.Add(".3gp", typeof(MP4FileProcessor));
         }
 
         public static ImageFactoryBuilder Instance

@@ -7,8 +7,8 @@ namespace Image.Engine
 {
     public class JVCMovieFileProcessor : FileProcessor
     {
-        private const string MOD_EXT = ".mod";
-        private const string MOI_EXT = ".moi";
+        private const string MOD_EXT = ".MOD";
+        private const string MOI_EXT = ".MOI";
 
         protected override DateTime GetOriginDateCreation(string filePath)
         {
@@ -79,7 +79,7 @@ namespace Image.Engine
 
         public override async Task CopyFileToDetinationDriveAsync(string modFilePath, string destinationDrive, CancellationToken cancelToken)
         {
-            var moiFilePath = string.Concat(Path.GetDirectoryName(modFilePath), Path.GetFileNameWithoutExtension(modFilePath) + MOI_EXT);
+            var moiFilePath = Path.Combine(Path.GetDirectoryName(modFilePath), Path.GetFileNameWithoutExtension(modFilePath) + MOI_EXT);
             FileInfo moiFile = new FileInfo(moiFilePath);
 
             DateTime dateTaken;

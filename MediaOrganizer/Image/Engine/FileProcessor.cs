@@ -62,7 +62,7 @@ namespace Image.Engine
                 newFileName = $"{isMarked[1]}_{newFileName}";
             }
 
-            var destFileName = Path.Combine(destFolder, newFileName);
+            var destFileName = Path.Combine(destFolder, newFileName).Replace("Copy of ", "");
             var destFile = new FileInfo(destFileName);
 
             if (destFile.Exists)
@@ -75,8 +75,16 @@ namespace Image.Engine
                 }
                 else
                 {
-                    Log.Instance.Info($"Duplicated file name but different content: {originFile.FullName}");
-                    destFileName = GenerateNewSimilarName(destFile);
+                    if(originFile.LastWriteTime != destFile.LastWriteTime)
+                    {
+                        Log.Instance.Info($"Duplicated file name but different content: {originFile.FullName}");
+                        destFileName = GenerateNewSimilarName(destFile);
+                    }
+                    else
+                    {
+                        Log.Instance.Info($"Duplicated file: {originFile.FullName}");
+                        return null;
+                    }
                 }
             }
 

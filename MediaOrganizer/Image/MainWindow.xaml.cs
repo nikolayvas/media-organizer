@@ -210,8 +210,11 @@ namespace Image
                         }
                         else
                         {
-                            ThumbMarker.PutThumbMarker(tag.Path, true);
-                            ExpandFolder(item.Parent as TreeViewItem);
+                            if(!taskRes.IsCanceled)
+                            {
+                                ThumbMarker.PutThumbMarker(tag.Path, true);
+                                ExpandFolder(item.Parent as TreeViewItem);
+                            }
                         }
                     }
                     finally
