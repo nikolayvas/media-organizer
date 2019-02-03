@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,15 +77,28 @@ namespace Image.Engine
                 }
                 else
                 {
-                    if(originFile.LastWriteTime != destFile.LastWriteTime)
+                    foreach(var newDestFileName in GetNextName(destFile))
                     {
-                        Log.Instance.Info($"Duplicated file name but different content: {originFile.FullName}");
-                        destFileName = GenerateNewSimilarName(destFile);
-                    }
-                    else
-                    {
-                        Log.Instance.Info($"Duplicated file: {originFile.FullName}");
-                        return null;
+                        destFile = new FileInfo(newDestFileName);
+
+                        if (destFile.Exists)
+                        {
+                            if (destFile.Length == originFile.Length)
+                            {
+                                Log.Instance.Info($"Duplicated file: {originFile.FullName}");
+                                return null;
+                            }
+                            else
+                            {
+                                //continue loop 
+                            }
+                        }
+                        else
+                        {
+                            Log.Instance.Info($"Duplicated file name but different content: {originFile.FullName}");
+                            destFileName = newDestFileName;
+                            break;
+                        }
                     }
                 }
             }
@@ -91,7 +106,8 @@ namespace Image.Engine
             return destFileName;
         }
 
-        private string GenerateNewSimilarName(FileInfo destFile)
+
+        private IEnumerable<string> GetNextName(FileInfo destFile)
         {
             string folder = Path.GetDirectoryName(destFile.FullName);
             string name = Path.GetFileNameWithoutExtension(destFile.FullName);
@@ -101,12 +117,7 @@ namespace Image.Engine
             while (true)
             {
                 var newFileName = Path.Combine(folder, $"{name}_{index}{ext}");
-                var file = new FileInfo(newFileName);
-
-                if (!file.Exists)
-                {
-                    return newFileName;
-                }
+                yield return newFileName;
 
                 index++;
             }

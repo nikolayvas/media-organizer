@@ -55,7 +55,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TreeView Grid.Column="0" Name="leftTree" SelectedItemChanged="LeftTree_SelectedItemChanged" PreviewMouseRightButtonDown="LeftTree_PreviewMouseRightButtonDown">
+                <TreeView Grid.Column="0" Name="leftTree" SelectedItemChanged="LeftTree_SelectedItemChanged" PreviewMouseRightButtonDown="Tree_PreviewMouseRightButtonDown">
                     <TreeView.Resources>
                         <Style TargetType="{x:Type TreeViewItem}">
                             <Setter Property="HeaderTemplate">
@@ -76,7 +76,7 @@
                                 </Setter.Value>
                             </Setter>
                         </Style>
-                        <ContextMenu x:Key="FolderContext" StaysOpen="true">
+                        <ContextMenu x:Key="sourceTreeContext" StaysOpen="true">
                             <MenuItem Header="Copy files to destination drive..." Click="Copy_Click"
                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
                             <Separator />
@@ -88,7 +88,7 @@
                     </TreeView.Resources>
                 </TreeView>
                 <GridSplitter Width="5" HorizontalAlignment="Right" VerticalAlignment="Stretch" ResizeBehavior="CurrentAndNext"/>
-                <TreeView Grid.Column="1" Name="rightTree">
+                <TreeView Grid.Column="1" Name="rightTree" SelectedItemChanged="rightTree_SelectedItemChanged" PreviewMouseRightButtonDown="Tree_PreviewMouseRightButtonDown">
                     <TreeView.Resources>
                         <Style TargetType="{x:Type TreeViewItem}">
                             <Setter Property="HeaderTemplate">
@@ -109,6 +109,10 @@
                                 </Setter.Value>
                             </Setter>
                         </Style>
+                        <ContextMenu x:Key="targetTreeContext" StaysOpen="true">
+                            <MenuItem Header="Delete duplicated files..." Click="RemoveDuplicated_Click"
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                        </ContextMenu>
                     </TreeView.Resources>
                 </TreeView>
             </Grid>

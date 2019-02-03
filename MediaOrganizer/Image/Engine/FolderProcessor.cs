@@ -21,8 +21,12 @@ namespace Image.Engine
                 {
                     if (cancelToken.IsCancellationRequested)
                     {
+                        processMonitorAction($"Operation canceled", 100);
                         return result;
                     }
+
+                    Thread.Sleep(0);
+
                     int percentComplete = (int)Math.Round((double)(100 * progress) / length);
 
                     processMonitorAction($"Copying: {file.FullName}", percentComplete);

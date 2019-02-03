@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 using Image.Engine;
+using System.Threading.Tasks;
 
 namespace Image
 {
@@ -135,7 +136,7 @@ namespace Image
                         switch (tag.Type)
                         {
                             case NodeDataType.Folder:
-                                var contextMenu = leftTree.Resources["FolderContext"] as ContextMenu;
+                                var contextMenu = leftTree.Resources["sourceTreeContext"] as ContextMenu;
 
                                 if(ThumbMarker.HasThumpMarker(tag.Path))
                                 {
@@ -160,7 +161,33 @@ namespace Image
             }
         }
 
-        private void LeftTree_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void rightTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (sender is TreeView tv)
+            {
+                if (tv.SelectedItem is TreeViewItem selectedItem)
+                {
+                    if (selectedItem.Tag is TreeNode tag)
+                    {
+                        switch (tag.Type)
+                        {
+                            case NodeDataType.Folder:
+                            case NodeDataType.Drive:
+                                var contextMenu = rightTree.Resources["targetTreeContext"] as ContextMenu;
+
+                                rightTree.ContextMenu = contextMenu;
+
+                                break;
+                            default:
+                                rightTree.ContextMenu = null;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void Tree_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             TreeViewItem treeViewItem = VisualUpwardSearch(e.OriginalSource as DependencyObject);
 
@@ -199,6 +226,7 @@ namespace Image
                     try
                     {
                         BlockUI(true);
+                        _cancelSource = new CancellationTokenSource();
                         var taskRes = FolderProcessor.ProcessFolder(tag.Path, _destinationDrive, SetProgress, _cancelSource.Token);
 
                         await taskRes.ContinueWith(_ => _cancelSource.Dispose());
@@ -220,6 +248,7 @@ namespace Image
                     finally
                     {
                         BlockUI(false);
+                        _cancelSource = null;
                     }
                 }
             }
@@ -271,22 +300,21 @@ namespace Image
 
         private void BlockUI(bool yes)
         {
-            leftTree.IsEnabled = !yes;
             sourceDriveItem.IsEnabled = !yes;
             destinationDriveItem.IsEnabled = !yes;
+            (leftTree.Resources["sourceTreeContext"] as ContextMenu).Visibility = yes ? Visibility.Hidden : Visibility.Visible;
+            (rightTree.Resources["targetTreeContext"] as ContextMenu).Visibility = yes ? Visibility.Hidden : Visibility.Visible;
 
             if (yes)
             {
                 progressBar.Value = 0;
                 activityGif.Visibility = Visibility.Visible;
                 cancelCopy.Visibility = Visibility.Visible;
-                _cancelSource = new CancellationTokenSource();
             }
             else
             {
                 cancelCopy.Visibility = Visibility.Hidden;
                 activityGif.Visibility = Visibility.Hidden;
-                _cancelSource = null;
             }
         }
 
@@ -360,6 +388,34 @@ namespace Image
             }
 
             return true;
+        }
+
+        private async void RemoveDuplicated_Click(object sender, RoutedEventArgs e)
+        {
+            var item = GetSelectedTreeViewItem(sender);
+            if (item != null)
+            {
+                if (item.Tag is TreeNode tag)
+                {
+                    Log.Instance.Info($"Remove duplications for folder {tag.Path} started!");
+
+                    try
+                    {
+                        BlockUI(true);
+                        _cancelSource = new CancellationTokenSource();
+
+                        await Task.Run(() => DuplicatedFilesRemoval.RemoveDuplicatedFilesPerFolder(tag.Path, true, SetProgress, _cancelSource.Token));
+
+                        ExpandFolder(item.Parent as TreeViewItem);
+                    }
+                    finally
+                    {
+                        BlockUI(false);
+                        _cancelSource.Dispose();
+                        _cancelSource = null;
+                    }
+                }
+            }
         }
     }
 }

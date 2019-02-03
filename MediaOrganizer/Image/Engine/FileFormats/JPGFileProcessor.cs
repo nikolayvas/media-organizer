@@ -6,6 +6,7 @@ namespace Image.Engine
     public class JPGFileProcessor : FileProcessor
     {
         private const string OriginCreationDate = "Date taken";
+        private const string OriginDateModified = "Date modified";
 
         protected override DateTime GetOriginDateCreation(string filePath)
         {
@@ -16,6 +17,12 @@ namespace Image.Engine
                 if (!DateTime.TryParse(dateString, out var dateValue))
                 {
                     Log.Instance.Warn($"No 'Date taken' date detected for: {filePath}");
+
+                    dateString = MetadataExtractor.Instance.GetFolderDetails(Path.GetDirectoryName(filePath)).GetFileDetail(filePath, OriginDateModified);
+                    if (!DateTime.TryParse(dateString, out dateValue))
+                    {
+                        Log.Instance.Warn($"No 'Date modified' date detected for: {filePath}");
+                    }
                 }
 
                 return dateValue;

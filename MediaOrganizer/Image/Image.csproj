@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Engine\CopyResult.cs" />
+    <Compile Include="Engine\DuplicatedFilesRemoval.cs" />
     <Compile Include="Engine\FileProcessor.cs" />
     <Compile Include="Engine\ImageFactoryBuilder.cs" />
     <Compile Include="Engine\Tools\FolderDetail.cs" />

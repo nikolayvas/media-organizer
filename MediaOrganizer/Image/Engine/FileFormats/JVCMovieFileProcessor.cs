@@ -86,7 +86,7 @@ namespace Image.Engine
             if(!moiFile.Exists)
             {
                 Log.Instance.Warn($"MOD file without MOI: {modFilePath}");
-                dateTaken = DateTime.Now;
+                dateTaken = new DateTime();
             }
             else
             {
