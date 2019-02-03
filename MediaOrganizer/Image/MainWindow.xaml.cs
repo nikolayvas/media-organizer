@@ -227,7 +227,7 @@ namespace Image
                     {
                         BlockUI(true);
                         _cancelSource = new CancellationTokenSource();
-                        var taskRes = FolderProcessor.ProcessFolder(tag.Path, _destinationDrive, SetProgress, _cancelSource.Token);
+                        var taskRes = Task.Run(() => FolderProcessor.ProcessFolder(tag.Path, _destinationDrive, SetProgress, _cancelSource.Token));
 
                         await taskRes.ContinueWith(_ => _cancelSource.Dispose());
                         if (taskRes.Result.Errors > 0)
@@ -320,8 +320,11 @@ namespace Image
 
         private void SetProgress(string inPorgressFile, int progress)
         {
-            progressBar.Value = progress;
-            inProgress.Text = inPorgressFile;
+            Dispatcher.Invoke(() =>
+            {
+                progressBar.Value = progress;
+                inProgress.Text = inPorgressFile;
+            });
         }
 
         private void MenuItem_SubmenuOpened(object sender, RoutedEventArgs e)
