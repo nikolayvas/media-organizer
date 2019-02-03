@@ -61,7 +61,9 @@ namespace Image.Engine
 
             if (isMarked.Length > 1)
             {
-                newFileName = $"{isMarked[1]}_{newFileName}";
+                //newFileName = $"{isMarked[1]}_{newFileName}";
+                destFolder = Path.Combine(destFolder, isMarked[1]);
+                Directory.CreateDirectory(destFolder);
             }
 
             var destFileName = Path.Combine(destFolder, newFileName).Replace("Copy of ", "");
@@ -105,7 +107,6 @@ namespace Image.Engine
 
             return destFileName;
         }
-
 
         private IEnumerable<string> GetNextName(FileInfo destFile)
         {

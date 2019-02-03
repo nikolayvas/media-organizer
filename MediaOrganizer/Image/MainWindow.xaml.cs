@@ -245,6 +245,10 @@ namespace Image
                             }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.Error(ex);
+                    }
                     finally
                     {
                         BlockUI(false);
@@ -410,6 +414,10 @@ namespace Image
                         await Task.Run(() => DuplicatedFilesRemoval.RemoveDuplicatedFilesPerFolder(tag.Path, true, SetProgress, _cancelSource.Token));
 
                         ExpandFolder(item.Parent as TreeViewItem);
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.Instance.Error(ex);
                     }
                     finally
                     {
