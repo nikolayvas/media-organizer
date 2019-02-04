@@ -88,7 +88,7 @@
                     </TreeView.Resources>
                 </TreeView>
                 <GridSplitter Width="5" HorizontalAlignment="Right" VerticalAlignment="Stretch" ResizeBehavior="CurrentAndNext"/>
-                <TreeView Grid.Column="1" Name="rightTree" SelectedItemChanged="rightTree_SelectedItemChanged" PreviewMouseRightButtonDown="Tree_PreviewMouseRightButtonDown">
+                <TreeView Grid.Column="1" Name="rightTree" SelectedItemChanged="RightTree_SelectedItemChanged" PreviewMouseRightButtonDown="Tree_PreviewMouseRightButtonDown">
                     <TreeView.Resources>
                         <Style TargetType="{x:Type TreeViewItem}">
                             <Setter Property="HeaderTemplate">

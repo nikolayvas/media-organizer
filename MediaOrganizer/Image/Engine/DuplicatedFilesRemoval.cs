@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Linq;
 
 namespace Image.Engine
 {
@@ -30,8 +31,7 @@ namespace Image.Engine
 
                 var originName = GetFileOriginName(file);
 
-                List<FileInfo> list;
-                if(!dict.TryGetValue(originName, out list))
+                if (!dict.TryGetValue(originName, out List<FileInfo> list))
                 {
                     dict[originName] = new List<FileInfo>() { file };
                 }
@@ -41,13 +41,10 @@ namespace Image.Engine
                 }
             }
 
-            foreach(var pair in dict)
+            foreach(var pair in dict.Where(n=>n.Value.Count > 1))
             {
-                if(pair.Value.Count > 1)
-                {
-                    processMonitorAction($"Merge '{pair.Key}' ...", 100);
-                    DoAction(pair.Key, pair.Value);
-                }
+                processMonitorAction($"Merge '{pair.Key}' ...", 100);
+                DoAction(pair.Key, pair.Value);
             }
 
             if(inDeep)

@@ -35,7 +35,7 @@ namespace Image.Engine
                     {
                         try
                         {
-                            await processor.CopyFileToDetinationDriveAsync(file.FullName, destinationDrive, cancelToken);
+                            await processor.CopyFileToDetinationDriveAsync(file.FullName, destinationDrive, cancelToken).ConfigureAwait(false);
                         }
                         catch (TaskCanceledException)
                         {

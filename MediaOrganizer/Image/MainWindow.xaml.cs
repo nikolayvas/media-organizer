@@ -76,20 +76,20 @@ namespace Image
             item.Items.Clear();
             try
             {
-                foreach (string s in Directory.GetDirectories(((TreeNode)item.Tag).Path))
+                foreach (string dir in Directory.GetDirectories(((TreeNode)item.Tag).Path))
                 {
                     TreeViewItem subitem = new TreeViewItem
                     {
-                        Header = s.Substring(s.LastIndexOf("\\") + 1),
+                        Header = dir.Substring(dir.LastIndexOf("\\") + 1),
                         Tag = new TreeNode()
                         {
                             Type = NodeDataType.Folder,
-                            Path = s
+                            Path = dir
                         },
                         FontWeight = FontWeights.Normal,
                     };
 
-                    if (ThumbMarker.HasThumpMarker(s))
+                    if (ThumbMarker.HasThumpMarker(dir))
                     {
                         subitem.Foreground = new SolidColorBrush(Colors.Orange);
                     }
@@ -98,15 +98,16 @@ namespace Image
                     subitem.Expanded += new RoutedEventHandler(Folder_Expanded);
                     item.Items.Add(subitem);
                 }
-                foreach (string f in Directory.GetFiles(((TreeNode)item.Tag).Path))
+
+                foreach (string file in Directory.GetFiles(((TreeNode)item.Tag).Path))
                 {
                     TreeViewItem subitem = new TreeViewItem
                     {
-                        Header = Path.GetFileName(f),
+                        Header = Path.GetFileName(file),
                         Tag = new TreeNode()
                         {
                             Type = NodeDataType.File,
-                            Path = f
+                            Path = file
                         },
                         FontWeight = FontWeights.Normal,
                     };
@@ -161,7 +162,7 @@ namespace Image
             }
         }
 
-        private void rightTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private void RightTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (sender is TreeView tv)
             {
@@ -204,58 +205,6 @@ namespace Image
                 source = VisualTreeHelper.GetParent(source);
 
             return source as TreeViewItem;
-        }
-
-        private async void Copy_Click(object sender, RoutedEventArgs e)
-        {
-            if(rightTree.Items.Count == 0)
-            {
-                MessageBox.Show("You need first to select the destination drive!",
-                                "Info",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-
-            var item = GetSelectedTreeViewItem(sender);
-            if (item != null)
-            {
-                if (item.Tag is TreeNode tag)
-                {
-                    Log.Instance.Info($"Folder, {tag.Path} was clicked!");
-
-                    try
-                    {
-                        BlockUI(true);
-                        _cancelSource = new CancellationTokenSource();
-                        var taskRes = Task.Run(() => FolderProcessor.ProcessFolder(tag.Path, _destinationDrive, SetProgress, _cancelSource.Token));
-
-                        await taskRes.ContinueWith(_ => _cancelSource.Dispose());
-                        if (taskRes.Result.Errors > 0)
-                        {
-                            MessageBox.Show($"Operation completed with {taskRes.Result} errors! For details check the log file!",
-                                            "Warning",
-                                            MessageBoxButton.OK, MessageBoxImage.Warning);
-                        }
-                        else
-                        {
-                            if(!taskRes.IsCanceled)
-                            {
-                                ThumbMarker.PutThumbMarker(tag.Path, true);
-                                ExpandFolder(item.Parent as TreeViewItem);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Instance.Error(ex);
-                    }
-                    finally
-                    {
-                        BlockUI(false);
-                        _cancelSource = null;
-                    }
-                }
-            }
         }
 
         private void Mark_Click(object sender, RoutedEventArgs e)
@@ -320,15 +269,6 @@ namespace Image
                 cancelCopy.Visibility = Visibility.Hidden;
                 activityGif.Visibility = Visibility.Hidden;
             }
-        }
-
-        private void SetProgress(string inPorgressFile, int progress)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                progressBar.Value = progress;
-                inProgress.Text = inPorgressFile;
-            });
         }
 
         private void MenuItem_SubmenuOpened(object sender, RoutedEventArgs e)
@@ -397,6 +337,66 @@ namespace Image
             return true;
         }
 
+        private async void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            if (rightTree.Items.Count == 0)
+            {
+                MessageBox.Show("You need first to select the destination drive!",
+                                "Info",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var item = GetSelectedTreeViewItem(sender);
+            if (item != null)
+            {
+                if (item.Tag is TreeNode tag)
+                {
+                    Log.Instance.Info($"Folder, {tag.Path} was clicked!");
+
+                    try
+                    {
+                        BlockUI(true);
+                        _cancelSource = new CancellationTokenSource();
+
+                        var taskRes = Task.Run(() => FolderProcessor.ProcessFolder(tag.Path, _destinationDrive, SetProgress, _cancelSource.Token));
+
+                        await taskRes.ContinueWith(x => Log.Instance.Error(x.Exception), TaskContinuationOptions.OnlyOnFaulted);
+
+                        if (taskRes.IsFaulted)
+                        {
+                            SetProgress("Opearion failed!");
+                            MessageBox.Show($"Operation failed! For details check the log file!",
+                                            "Warning",
+                                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else if (taskRes.IsCompleted && taskRes.Result.Errors > 0)
+                        {
+                            SetProgress("Opearion completed with errors!");
+                            MessageBox.Show($"Operation completed with {taskRes.Result} errors! For details check the log file!",
+                                            "Warning",
+                                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                        else if(!taskRes.IsCanceled)
+                        {
+                            ThumbMarker.PutThumbMarker(tag.Path, true);
+                            ExpandFolder(item.Parent as TreeViewItem);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.Error(ex);
+                    }
+                    finally
+                    {
+                        BlockUI(false);
+                        _cancelSource.Dispose();
+                        _cancelSource = null;
+                    }
+                }
+            }
+        }
+
         private async void RemoveDuplicated_Click(object sender, RoutedEventArgs e)
         {
             var item = GetSelectedTreeViewItem(sender);
@@ -411,7 +411,14 @@ namespace Image
                         BlockUI(true);
                         _cancelSource = new CancellationTokenSource();
 
-                        await Task.Run(() => DuplicatedFilesRemoval.RemoveDuplicatedFilesPerFolder(tag.Path, true, SetProgress, _cancelSource.Token));
+                        void continueOnFailAction(Task x)
+                        {
+                            Log.Instance.Error(x.Exception);
+                            SetProgress("Operation failed!", 0);
+                        };
+
+                        await Task.Run(() => DuplicatedFilesRemoval.RemoveDuplicatedFilesPerFolder(tag.Path, true, SetProgress, _cancelSource.Token))
+                            .ContinueWith(x => continueOnFailAction(x), TaskContinuationOptions.OnlyOnFaulted);
 
                         ExpandFolder(item.Parent as TreeViewItem);
                     }
@@ -427,6 +434,19 @@ namespace Image
                     }
                 }
             }
+        }
+
+        private void SetProgress(string inPorgressFile, int progress = -1)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (progress != -1)
+                {
+                    progressBar.Value = progress;
+                }
+
+                inProgress.Text = inPorgressFile;
+            });
         }
     }
 }

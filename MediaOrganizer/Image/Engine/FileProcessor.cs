@@ -31,7 +31,7 @@ namespace Image.Engine
         {
             using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, _bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
             using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, _bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
-                await sourceStream.CopyToAsync(destinationStream, _bufferSize, cancelToken);
+                await sourceStream.CopyToAsync(destinationStream, _bufferSize, cancelToken).ConfigureAwait(false);
         }
 
         protected string GetDestinationFolderPath(string filePath, string destinationDrive, DateTime dateTaken)
