@@ -67,8 +67,7 @@ namespace Image
         void Folder_Expanded(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
-            TreeViewItem item = (TreeViewItem)sender;
-            ExpandFolder(item);
+            ExpandFolder((TreeViewItem)sender);
         }
 
         private void ExpandFolder(TreeViewItem item)
@@ -352,7 +351,7 @@ namespace Image
             {
                 if (item.Tag is TreeNode tag)
                 {
-                    Log.Instance.Info($"Folder, {tag.Path} was clicked!");
+                    Log.Instance.Info($"Folder '{tag.Path}' started copying...");
 
                     try
                     {
@@ -361,13 +360,13 @@ namespace Image
 
                         var taskRes = Task.Run(() => FolderProcessor.ProcessFolder(tag.Path, _destinationDrive, SetProgress, _cancelSource.Token));
 
-                        await taskRes.ContinueWith(x => Log.Instance.Error(x.Exception), TaskContinuationOptions.OnlyOnFaulted);
+                        await taskRes;
 
                         if (taskRes.IsFaulted)
                         {
                             SetProgress("Opearion failed!");
                             MessageBox.Show($"Operation failed! For details check the log file!",
-                                            "Warning",
+                                            "Error",
                                             MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                         else if (taskRes.IsCompleted && taskRes.Result.Errors > 0)
@@ -386,6 +385,7 @@ namespace Image
                     catch (Exception ex)
                     {
                         Log.Instance.Error(ex);
+                        SetProgress("Opearion failed!");
                     }
                     finally
                     {
@@ -411,20 +411,14 @@ namespace Image
                         BlockUI(true);
                         _cancelSource = new CancellationTokenSource();
 
-                        void continueOnFailAction(Task x)
-                        {
-                            Log.Instance.Error(x.Exception);
-                            SetProgress("Operation failed!", 0);
-                        };
-
-                        await Task.Run(() => DuplicatedFilesRemoval.RemoveDuplicatedFilesPerFolder(tag.Path, true, SetProgress, _cancelSource.Token))
-                            .ContinueWith(x => continueOnFailAction(x), TaskContinuationOptions.OnlyOnFaulted);
+                        await Task.Run(() => DuplicatedFilesRemoval.RemoveDuplicatedFilesPerFolder(tag.Path, true, SetProgress, _cancelSource.Token));
 
                         ExpandFolder(item.Parent as TreeViewItem);
                     }
                     catch(Exception ex)
                     {
                         Log.Instance.Error(ex);
+                        SetProgress("Operation failed!", 0);
                     }
                     finally
                     {

@@ -1,4 +1,5 @@
 ﻿using Shell32;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -13,7 +14,7 @@ namespace Image.Engine
 
         public FolderDetail(string path)
         {
-            _folder = new Shell().NameSpace(path);
+            _folder = GetShell32NameSpaceFolder(path);
 
             for (int i = 0; i < 512; i++)
             {
@@ -43,6 +44,14 @@ namespace Image.Engine
             }
 
             return null;
+        }
+
+        private Folder GetShell32NameSpaceFolder(object folder)
+        {
+            Type shellAppType = Type.GetTypeFromProgID("Shell.Application");
+
+            object shell = Activator.CreateInstance(shellAppType);
+            return (Folder)shellAppType.InvokeMember("NameSpace", System.Reflection.BindingFlags.InvokeMethod, null, shell, new object[] { folder });
         }
     }
 }
