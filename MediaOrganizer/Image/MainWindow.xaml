@@ -112,6 +112,8 @@
                         <ContextMenu x:Key="targetTreeContext" StaysOpen="true">
                             <MenuItem Header="Delete duplicated files..." Click="RemoveDuplicated_Click"
                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                            <MenuItem Header="Update file names..." Click="UpdateFileNames_Click"
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
                         </ContextMenu>
                     </TreeView.Resources>
                 </TreeView>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +12,33 @@ namespace Image.Engine
     {
         private static readonly string _destDriveRootFolder = "Galery";
         private readonly string _dateFormat = "yyyyMMdd";
+        private readonly string _dateFormat2 = "yyyy-MM-dd";
         private readonly int _bufferSize = 1024 * 1024;
 
-        protected abstract DateTime GetOriginDateCreation(string sourcePath);
+        protected virtual DateTime GetOriginDateCreation(string filePath)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(filePath);
+
+            //yyyyMMdd_xxxxxx
+            if (fileName[8] == '_')
+            {
+                if (DateTime.TryParseExact(fileName.Substring(0, 8), _dateFormat, null, DateTimeStyles.None, out var dateCreated))
+                {
+                    return dateCreated;
+                }
+            }
+
+            //yyyy-MM-dd xxxxxxx
+            if (fileName[4] == '-' && fileName[7] == '-' && fileName[10] == '-')
+            {
+                if (DateTime.TryParseExact(fileName.Substring(0, 10), _dateFormat2, null, DateTimeStyles.None, out var dateCreated))
+                {
+                    return dateCreated;
+                }
+            }
+
+            return DateTime.MinValue;
+        }
 
         public virtual async Task CopyFileToDetinationDriveAsync(string filePath, string destinationDrive, CancellationToken cancelToken)
         {
@@ -48,9 +73,11 @@ namespace Image.Engine
 
             string originFileName = Path.GetFileName(filePath);
             string dateCreated = dateTaken.ToString(_dateFormat);
+            string dateCreated2 = dateTaken.ToString(_dateFormat2);
+
             string newFileName;
 
-            if (!originFileName.StartsWith(dateCreated))
+            if (!originFileName.StartsWith(dateCreated) && !originFileName.StartsWith(dateCreated2))
             {
                 newFileName = $"{dateCreated}_{originFileName}";
             }

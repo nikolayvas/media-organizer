@@ -11,6 +11,12 @@ namespace Image.Engine
         {
             try
             {
+                var dateCreated = base.GetOriginDateCreation(filePath);
+                if (dateCreated != DateTime.MaxValue)
+                {
+                    return dateCreated;
+                }
+
                 var dateString = MetadataExtractor.Instance.GetFolderDetails(Path.GetDirectoryName(filePath)).GetFileDetail(filePath, OriginCreationDate);
 
                 if (!DateTime.TryParse(dateString, out var dateValue))
