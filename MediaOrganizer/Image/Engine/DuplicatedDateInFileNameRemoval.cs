@@ -32,7 +32,14 @@ namespace Image.Engine
                     return;
                 }
 
-                DoAction(file);
+                try
+                {
+                    DoAction(file);
+                }
+                catch(Exception ex)
+                {
+                    Log.Instance.Error(ex, $"Failed to process file {file.FullName}");
+                }
             }
 
             processMonitorAction("Update file names completed!", 100);
