@@ -37,6 +37,7 @@ namespace Image.Engine
             {
                 return false;
             }
+
             try
             {
                 return folder.GetFiles(_thumbFileName).Any();
@@ -72,9 +73,16 @@ namespace Image.Engine
         private static void PutMarker(string folderPath)
         {
             var fileName = Path.Combine(folderPath, _thumbFileName);
-            using (File.Create(fileName))
+            try
             {
-
+                using (File.Create(fileName))
+                {
+                    //do nothing, just create empty file
+                }
+            }
+            catch(Exception ex)
+            {
+                Log.Instance.Error(ex);
             }
         }
 

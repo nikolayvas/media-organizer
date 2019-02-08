@@ -12,10 +12,18 @@ namespace Image.Engine
 
         public static void UpdateNames(string dirPath, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
-            var dir = new DirectoryInfo(dirPath);
-            if (dir.Exists)
+            try
             {
-                UpdateNames(dir, processMonitorAction, cancelToken);
+                var dir = new DirectoryInfo(dirPath);
+                if (dir.Exists)
+                {
+                    UpdateNames(dir, processMonitorAction, cancelToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Error(ex, "Update file names operation failed!");
+                processMonitorAction("Update file names operation failed!", 100);
             }
         }
 

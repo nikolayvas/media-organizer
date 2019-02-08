@@ -10,14 +10,22 @@ namespace Image.Engine
     {
         public static void RemoveDuplicatedFilesPerFolder(string dirPath, bool inDeep, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
-            var dir = new DirectoryInfo(dirPath);
-            if(dir.Exists)
+            try
             {
-                RemoveDuplicatedFilesPerFolder(dir, inDeep, processMonitorAction, cancelToken);
+                var dir = new DirectoryInfo(dirPath);
+                if (dir.Exists)
+                {
+                    RemoveDuplicatedFilesPerFolder(dir, inDeep, processMonitorAction, cancelToken);
+                }
+            }
+            catch(Exception ex)
+            {
+                Log.Instance.Error(ex, "Remove duplicated files operation failed!");
+                processMonitorAction("Remove duplicated files operation failed!", 100);
             }
         }
 
-        public static void RemoveDuplicatedFilesPerFolder(DirectoryInfo dir, bool inDeep, Action<string, int> processMonitorAction, CancellationToken cancelToken)
+        private static void RemoveDuplicatedFilesPerFolder(DirectoryInfo dir, bool inDeep, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
             processMonitorAction("Remove duplicated files started!", 0);
             Dictionary<string, List<FileInfo>> dict = new Dictionary<string, List<FileInfo>>();

@@ -48,7 +48,7 @@ namespace Image.Engine
 
             if(destFilePath != null)
             {
-                await CopyFileAsync(filePath, destFilePath, cancelToken);
+                await CopyFileAsync(filePath, destFilePath, cancelToken).ConfigureAwait(false);
             }
         }
 

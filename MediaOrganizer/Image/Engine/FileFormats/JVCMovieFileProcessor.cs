@@ -98,12 +98,12 @@ namespace Image.Engine
 
             if (destModFilePath != null)
             {
-                await CopyFileAsync(modFilePath, destModFilePath, cancelToken);
+                await CopyFileAsync(modFilePath, destModFilePath, cancelToken).ConfigureAwait(false);
 
                 if (moiFile.Exists)
                 {
                     var destMoiFilePath = destModFilePath.Replace(MOD_EXT, MOI_EXT);
-                    await CopyFileAsync(moiFilePath, destMoiFilePath, cancelToken);
+                    await CopyFileAsync(moiFilePath, destMoiFilePath, cancelToken).ConfigureAwait(false);
                 }
             }
         }
