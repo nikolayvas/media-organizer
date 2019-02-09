@@ -29,7 +29,7 @@ namespace Image.Engine
             }
 
             //yyyy-MM-dd xxxxxxx
-            if (fileName[4] == '-' && fileName[7] == '-' && fileName[10] == '-')
+            if (fileName[4] == '-' && fileName[7] == '-' && fileName[10] == ' ')
             {
                 if (DateTime.TryParseExact(fileName.Substring(0, 10), _dateFormat2, null, DateTimeStyles.None, out var dateCreated))
                 {
