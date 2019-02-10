@@ -100,7 +100,7 @@ namespace Image.Engine
                 Directory.CreateDirectory(destFolder);
             }
 
-            var destFileName = Path.Combine(destFolder, newFileName).Replace("Copy of ", "");
+            var destFileName = Path.Combine(destFolder, newFileName).Replace("Copy of", "").Trim();
             var destFile = new FileInfo(destFileName);
 
             if (destFile.Exists)
