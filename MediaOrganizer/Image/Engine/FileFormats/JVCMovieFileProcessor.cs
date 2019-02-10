@@ -96,13 +96,14 @@ namespace Image.Engine
             var destinationFolderPath = GetDestinationFolderPath(modFilePath, destinationDrive, dateTaken);
             var destModFilePath = GetDestinationFilePath(modFilePath, destinationFolderPath, dateTaken);
 
-            if (destModFilePath != null)
+            if (destModFilePath.Item2 != CreateFileActionEnum.None)
             {
-                await CopyFileAsync(modFilePath, destModFilePath, cancelToken).ConfigureAwait(false);
+                //by default do overwrite operation
+                await CopyFileAsync(modFilePath, destModFilePath.Item1, cancelToken).ConfigureAwait(false);
 
                 if (moiFile.Exists)
                 {
-                    var destMoiFilePath = destModFilePath.Replace(MOD_EXT, MOI_EXT);
+                    var destMoiFilePath = destModFilePath.Item1.Replace(MOD_EXT, MOI_EXT);
                     await CopyFileAsync(moiFilePath, destMoiFilePath, cancelToken).ConfigureAwait(false);
                 }
             }

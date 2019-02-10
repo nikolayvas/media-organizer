@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -8,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace Image.Engine
 {
+    public enum CreateFileActionEnum
+    {
+        None,
+        CreateNew,
+        Overwrite
+    }
+
     public abstract class FileProcessor : IFileProcessor
     {
         private static readonly string _destDriveRootFolder = "Galery";
@@ -46,16 +52,17 @@ namespace Image.Engine
             var destinationFolderPath = GetDestinationFolderPath(filePath, destinationDrive, dateTaken);
             var destFilePath = GetDestinationFilePath(filePath, destinationFolderPath, dateTaken);
 
-            if(destFilePath != null)
+            if(destFilePath.Item2 != CreateFileActionEnum.None)
             {
-                await CopyFileAsync(filePath, destFilePath, cancelToken).ConfigureAwait(false);
+                //by default overwrite action
+                await CopyFileAsync(filePath, destFilePath.Item1, cancelToken).ConfigureAwait(false);
             }
         }
 
         protected async Task CopyFileAsync(string sourceFile, string destinationFile, CancellationToken cancelToken)
         {
             using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, _bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
-            using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, _bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            using (var destinationStream = new FileStream(destinationFile, FileMode.Create, FileAccess.Write, FileShare.None, _bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
                 await sourceStream.CopyToAsync(destinationStream, _bufferSize, cancelToken).ConfigureAwait(false);
         }
 
@@ -67,7 +74,7 @@ namespace Image.Engine
             return destFolder;
         }
 
-        protected string GetDestinationFilePath(string filePath, string destFolder, DateTime dateTaken)
+        protected Tuple<string, CreateFileActionEnum> GetDestinationFilePath(string filePath, string destFolder, DateTime dateTaken)
         {
             var isMarked = filePath.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -102,8 +109,22 @@ namespace Image.Engine
                 if (destFile.Length == originFile.Length)
                 {
                     Log.Instance.Info($"Duplicated file: {originFile.FullName}");
-                    return null;
+                    return new Tuple<string, CreateFileActionEnum>(destFileName, CreateFileActionEnum.None);
                 }
+                else
+                {
+                    if(destFile.Length > originFile.Length)
+                    {
+                        Log.Instance.Info($"Duplicated file name but different content: '{originFile.FullName}'. Overwite action!");
+                        return new Tuple<string, CreateFileActionEnum>(destFileName, CreateFileActionEnum.Overwrite);
+                    }
+                    else
+                    {
+                        Log.Instance.Info($"Duplicated file name but different content: '{originFile.FullName}'. None action!");
+                        return new Tuple<string, CreateFileActionEnum>(destFileName, CreateFileActionEnum.None);
+                    }
+                }
+                /*
                 else
                 {
                     foreach(var newDestFileName in GetNextName(destFile))
@@ -130,9 +151,10 @@ namespace Image.Engine
                         }
                     }
                 }
+                */
             }
 
-            return destFileName;
+            return new Tuple<string, CreateFileActionEnum>(destFileName, CreateFileActionEnum.CreateNew);
         }
 
         private IEnumerable<string> GetNextName(FileInfo destFile)
