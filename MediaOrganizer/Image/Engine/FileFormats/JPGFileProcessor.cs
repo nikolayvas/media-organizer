@@ -13,7 +13,7 @@ namespace Image.Engine
             try
             {
                 var dateCreated = base.GetOriginDateCreation(filePath);
-                if (dateCreated != DateTime.MaxValue)
+                if (dateCreated != DateTime.MinValue)
                 {
                     return dateCreated;
                 }
@@ -24,11 +24,13 @@ namespace Image.Engine
                 {
                     Log.Instance.Warn($"No 'Date taken' date detected for: {filePath}");
 
+                    /*
                     dateString = MetadataExtractor.Instance.GetFolderDetails(Path.GetDirectoryName(filePath)).GetFileDetail(filePath, OriginDateModified);
                     if (!DateTime.TryParse(dateString, out dateValue))
                     {
                         Log.Instance.Warn($"No 'Date modified' date detected for: {filePath}");
                     }
+                    */
                 }
 
                 return dateValue;

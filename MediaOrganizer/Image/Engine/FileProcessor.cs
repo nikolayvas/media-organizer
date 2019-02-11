@@ -26,7 +26,7 @@ namespace Image.Engine
             var fileName = Path.GetFileNameWithoutExtension(filePath);
 
             //yyyyMMdd_xxxxxx
-            if (fileName[8] == '_')
+            if (fileName.Length > 8 && fileName[8] == '_')
             {
                 if (DateTime.TryParseExact(fileName.Substring(0, 8), _dateFormat, null, DateTimeStyles.None, out var dateCreated))
                 {
@@ -35,7 +35,7 @@ namespace Image.Engine
             }
 
             //yyyy-MM-dd xxxxxxx
-            if (fileName[4] == '-' && fileName[7] == '-' && fileName[10] == ' ')
+            if (fileName.Length > 10 &&  fileName[4] == '-' && fileName[7] == '-' && fileName[10] == ' ')
             {
                 if (DateTime.TryParseExact(fileName.Substring(0, 10), _dateFormat2, null, DateTimeStyles.None, out var dateCreated))
                 {
@@ -113,7 +113,7 @@ namespace Image.Engine
                 }
                 else
                 {
-                    if(destFile.Length > originFile.Length)
+                    if(originFile.Length > destFile.Length)
                     {
                         Log.Instance.Info($"Duplicated file name but different content: '{originFile.FullName}'. Overwite action!");
                         return new Tuple<string, CreateFileActionEnum>(destFileName, CreateFileActionEnum.Overwrite);

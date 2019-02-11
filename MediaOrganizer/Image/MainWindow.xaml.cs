@@ -463,6 +463,39 @@ namespace Image
             }
         }
 
+        private async void RemoveFileNamePrefix_Click(object sender, RoutedEventArgs e)
+        {
+            var item = GetSelectedTreeViewItem(sender);
+            if (item != null)
+            {
+                if (item.Tag is TreeNode tag)
+                {
+                    Log.Instance.Info($"Remove file name prefix for folder {tag.Path} started!");
+
+                    try
+                    {
+                        BlockUI(true);
+                        _cancelSource = new CancellationTokenSource();
+
+                        await Task.Run(() => Remove00010101Prefix.Do(tag.Path, SetProgress, _cancelSource.Token));
+
+                        ExpandFolder(item.Parent as TreeViewItem);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.Error(ex);
+                        SetProgress("Operation failed!", 0);
+                    }
+                    finally
+                    {
+                        BlockUI(false);
+                        _cancelSource.Dispose();
+                        _cancelSource = null;
+                    }
+                }
+            }
+        }
+
         private void SetProgress(string inPorgressFile, int progress = -1)
         {
             Dispatcher.Invoke(() =>

@@ -114,6 +114,8 @@
                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
                             <MenuItem Header="Update file names..." Click="UpdateFileNames_Click"
                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                            <MenuItem Header="Remove file name prefix..." Click="RemoveFileNamePrefix_Click"
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
                         </ContextMenu>
                     </TreeView.Resources>
                 </TreeView>
