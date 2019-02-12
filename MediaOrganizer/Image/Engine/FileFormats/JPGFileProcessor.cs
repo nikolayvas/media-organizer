@@ -6,7 +6,7 @@ namespace Image.Engine
     public class JPGFileProcessor : FileProcessor
     {
         private const string OriginCreationDate = "Date taken";
-        private const string OriginDateModified = "Date modified";
+        //private const string OriginDateModified = "Date modified";
 
         protected override DateTime GetOriginDateCreation(string filePath)
         {

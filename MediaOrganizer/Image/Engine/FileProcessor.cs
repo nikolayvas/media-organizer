@@ -68,7 +68,12 @@ namespace Image.Engine
 
         protected string GetDestinationFolderPath(string filePath, string destinationDrive, DateTime dateTaken)
         {
-            var destFolder = Path.Combine(destinationDrive, _destDriveRootFolder, dateTaken.Year.ToString("D4"), dateTaken.Month.ToString("D2"));
+            var destFolder = Path.Combine(destinationDrive, _destDriveRootFolder,
+                dateTaken == DateTime.MinValue
+                    ? "Unknown"
+                    : dateTaken.Year.ToString("D4"), dateTaken.Month.ToString("D2")
+                );
+
             Directory.CreateDirectory(destFolder);
 
             return destFolder;
@@ -76,15 +81,13 @@ namespace Image.Engine
 
         protected Tuple<string, CreateFileActionEnum> GetDestinationFilePath(string filePath, string destFolder, DateTime dateTaken)
         {
-            var isMarked = filePath.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
-
             string originFileName = Path.GetFileName(filePath);
+
             string dateCreated = dateTaken.ToString(_dateFormat);
             string dateCreated2 = dateTaken.ToString(_dateFormat2);
 
             string newFileName;
-
-            if (!originFileName.StartsWith(dateCreated) && !originFileName.StartsWith(dateCreated2))
+            if (dateTaken != DateTime.MinValue && !originFileName.StartsWith(dateCreated) && !originFileName.StartsWith(dateCreated2))
             {
                 newFileName = $"{dateCreated}_{originFileName}";
             }
@@ -93,16 +96,16 @@ namespace Image.Engine
                 newFileName = originFileName;
             }
 
-            if (isMarked.Length > 1)
+            var nestedFolder = filePath.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
+            if (nestedFolder.Length > 1)
             {
-                //newFileName = $"{isMarked[1]}_{newFileName}";
-                destFolder = Path.Combine(destFolder, isMarked[1]);
+                destFolder = Path.Combine(destFolder, nestedFolder[1]);
                 Directory.CreateDirectory(destFolder);
             }
 
             var destFileName = Path.Combine(destFolder, newFileName).Replace("Copy of", "").Trim();
-            var destFile = new FileInfo(destFileName);
 
+            var destFile = new FileInfo(destFileName);
             if (destFile.Exists)
             {
                 var originFile = new FileInfo(filePath);
@@ -113,7 +116,7 @@ namespace Image.Engine
                 }
                 else
                 {
-                    if(originFile.Length > destFile.Length)
+                    if (destFile.Length > originFile.Length)
                     {
                         Log.Instance.Info($"Duplicated file name but different content: '{originFile.FullName}'. Overwite action!");
                         return new Tuple<string, CreateFileActionEnum>(destFileName, CreateFileActionEnum.Overwrite);
@@ -157,6 +160,7 @@ namespace Image.Engine
             return new Tuple<string, CreateFileActionEnum>(destFileName, CreateFileActionEnum.CreateNew);
         }
 
+        /*
         private IEnumerable<string> GetNextName(FileInfo destFile)
         {
             string folder = Path.GetDirectoryName(destFile.FullName);
@@ -172,5 +176,6 @@ namespace Image.Engine
                 index++;
             }
         }
+        */
     }
 }

@@ -397,6 +397,7 @@ namespace Image
             }
         }
 
+        /*
         private async void RemoveDuplicated_Click(object sender, RoutedEventArgs e)
         {
             var item = GetSelectedTreeViewItem(sender);
@@ -429,7 +430,7 @@ namespace Image
                 }
             }
         }
-
+        
         private async void UpdateFileNames_Click(object sender, RoutedEventArgs e)
         {
             var item = GetSelectedTreeViewItem(sender);
@@ -462,7 +463,7 @@ namespace Image
                 }
             }
         }
-
+        
         private async void RemoveFileNamePrefix_Click(object sender, RoutedEventArgs e)
         {
             var item = GetSelectedTreeViewItem(sender);
@@ -470,14 +471,14 @@ namespace Image
             {
                 if (item.Tag is TreeNode tag)
                 {
-                    Log.Instance.Info($"Remove file name prefix for folder {tag.Path} started!");
+                    Log.Instance.Info($"Remove min date prefix for files in folder '{tag.Path}' started!");
 
                     try
                     {
                         BlockUI(true);
                         _cancelSource = new CancellationTokenSource();
 
-                        await Task.Run(() => Remove00010101Prefix.Do(tag.Path, SetProgress, _cancelSource.Token));
+                        await Task.Run(() => Remove00010101Prefix.RemoveMinDateFilesPrefix(tag.Path, SetProgress, _cancelSource.Token));
 
                         ExpandFolder(item.Parent as TreeViewItem);
                     }
@@ -495,6 +496,7 @@ namespace Image
                 }
             }
         }
+        */
 
         private void SetProgress(string inPorgressFile, int progress = -1)
         {

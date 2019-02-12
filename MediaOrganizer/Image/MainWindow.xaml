@@ -109,14 +109,14 @@
                                 </Setter.Value>
                             </Setter>
                         </Style>
-                        <ContextMenu x:Key="targetTreeContext" StaysOpen="true">
+                        <!--ContextMenu x:Key="targetTreeContext" StaysOpen="true">
                             <MenuItem Header="Delete duplicated files..." Click="RemoveDuplicated_Click"
-                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Visibility="Collapsed"/>
                             <MenuItem Header="Update file names..." Click="UpdateFileNames_Click"
-                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Visibility="Collapsed"/>
                             <MenuItem Header="Remove file name prefix..." Click="RemoveFileNamePrefix_Click"
-                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"/>
-                        </ContextMenu>
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" Visibility="Collapsed"/>
+                        </-->
                     </TreeView.Resources>
                 </TreeView>
             </Grid>

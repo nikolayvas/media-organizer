@@ -12,7 +12,7 @@ namespace Image.Engine
             try
             {
                 var dateCreated = base.GetOriginDateCreation(filePath);
-                if (dateCreated != DateTime.MaxValue)
+                if (dateCreated != DateTime.MinValue)
                 {
                     return dateCreated;
                 }

@@ -10,6 +10,12 @@ namespace Image.Engine
         private static readonly string _dateFormat = "yyyyMMdd";
         private static readonly string _dateFormat2 = "yyyy-MM-dd";
 
+        /// <summary>
+        /// Remove the duplicate date in the name of the files 
+        /// </summary>
+        /// <param name="dirPath"></param>
+        /// <param name="processMonitorAction"></param>
+        /// <param name="cancelToken"></param>
         public static void UpdateNames(string dirPath, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
             try

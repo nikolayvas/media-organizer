@@ -8,7 +8,7 @@ namespace Image.Engine
     public class Remove00010101Prefix
     {
         private const string _prefix = "00010101_";
-        public static void Do(string dirPath, Action<string, int> processMonitorAction, CancellationToken cancelToken)
+        public static void RemoveMinDateFilesPrefix(string dirPath, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace Image.Engine
 
         private static void Do(DirectoryInfo dir, Action<string, int> processMonitorAction, CancellationToken cancelToken)
         {
-            processMonitorAction($"Remove 00010101 files prefix for folder {dir.FullName} started!", 0);
+            processMonitorAction($"Remove 00010101 files prefix for folder '{dir.FullName}' started!", 0);
             Dictionary<string, List<FileInfo>> dict = new Dictionary<string, List<FileInfo>>();
 
             foreach (var file in dir.GetFiles("*", SearchOption.AllDirectories))
