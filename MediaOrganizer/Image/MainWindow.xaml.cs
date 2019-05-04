@@ -255,7 +255,7 @@ namespace Image
             sourceDriveItem.IsEnabled = !yes;
             destinationDriveItem.IsEnabled = !yes;
             (leftTree.Resources["sourceTreeContext"] as ContextMenu).Visibility = yes ? Visibility.Hidden : Visibility.Visible;
-            (rightTree.Resources["targetTreeContext"] as ContextMenu).Visibility = yes ? Visibility.Hidden : Visibility.Visible;
+            //(rightTree.Resources["targetTreeContext"] as ContextMenu).Visibility = yes ? Visibility.Hidden : Visibility.Visible;
 
             if (yes)
             {
